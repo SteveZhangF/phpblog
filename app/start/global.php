@@ -49,6 +49,20 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 App::error(function(Exception $exception, $code)
 {
 	Log::error($exception);
+
+});
+
+App::error(function(NoContentException $exception)
+{
+    Log::error($exception);
+
+    return 'Sorry! No such content!';
+});
+App::error(function(IllegalUserPermissionException $exception)
+{
+    Log::error($exception);
+
+    return 'Sorry! You don\'t have permission !';
 });
 
 /*

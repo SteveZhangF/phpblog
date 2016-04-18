@@ -1,4 +1,6 @@
 <?php
+class NoContentException extends Exception {}
+class IllegalUserPermissionException extends Exception{}
 
 class ArticleController extends \BaseController {
 
@@ -120,13 +122,15 @@ class ArticleController extends \BaseController {
 	{
 		$user_id = Auth::id();
 		$article = Article::find($id);
-		if($user_id == $article->user_id){
+		if($article == null){
+			throw new NoContentException();
+		}
+		if( $user_id == $article->user_id){
 		// echo $id;
 			return View::make('articles.edit')->with('article',$article );
 		}else{
-			return View::make('articles.show')->with('article',$article );;
+			throw new IllegalUserPermissionException();
 		}
-
 	}
 
 	/**
@@ -154,12 +158,15 @@ class ArticleController extends \BaseController {
 			$user_id = Auth::id();
 
 			$article=Article::find($id);
-			if($user_id == $article->user_id){
+
+			if($article == null){
+				return $this->index();
+			}
+
+			if($article!=null && $user_id == $article->user_id){
 				$article->title = Input::get('title');
 				$article->content=Input::get('content');
 				$article->save();
-			//$this->show($id);
-
 			}
 
 			return View::make('articles.show')->with('article',Article::find($id));;
@@ -180,6 +187,9 @@ class ArticleController extends \BaseController {
 		//
 		$article = Article::find($id);
 		$user_id = Auth::id();
+		if($article == null){
+			return $this->index();
+		}
 		if($article->user_id == $user_id){
 			$article->delete();
 		}
